@@ -1,74 +1,434 @@
-***Anindita Basu***
-**TSA Project**
+<!DOCTYPE html>
+<html>
+<head>
+<title>VECM_model.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 
-# Import Required Libraries and functions
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
-# data loading
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
 
-    <class 'pandas.core.frame.DataFrame'>
-    RangeIndex: 600 entries, 0 to 599
-    Data columns (total 11 columns):
-     #   Column  Non-Null Count  Dtype  
-    ---  ------  --------------  -----  
-     0   date    600 non-null    object 
-     1   y1      600 non-null    float64
-     2   y2      600 non-null    float64
-     3   y3      600 non-null    float64
-     4   y4      600 non-null    float64
-     5   y5      600 non-null    float64
-     6   y6      600 non-null    float64
-     7   y7      600 non-null    float64
-     8   y8      600 non-null    float64
-     9   y9      600 non-null    float64
-     10  y10     600 non-null    float64
-    dtypes: float64(10), object(1)
-    memory usage: 51.7+ KB
-    None
-             date       y1       y2       y3       y4       y5       y6       y7  \
-    0  2023-09-09 109.4100 109.4100 109.4100 124.2400 124.4700 109.4100 119.9400   
-    1  2023-09-10 109.4100 109.4100 109.4100 124.2100 124.3200 109.4100 101.3900   
-    2  2023-09-11 109.4200 109.4100 109.4100 124.4100 124.3700 109.4100  97.6400   
-    3  2023-09-12 108.6800 110.1900 111.1200 123.9300 124.8200 109.4100  94.3500   
-    4  2023-09-13 106.2100 110.8800 112.9200 122.6800 123.9100 107.8400  96.2200   
-    
-            y8       y9      y10  
-    0 104.6600 107.6200 119.3200  
-    1 104.3400 102.6100 119.3600  
-    2 104.2300  99.1600 119.3800  
-    3 107.2300 103.3900 121.0600  
-    4 109.7100 102.4300 122.1700  
-               date       y1       y2       y3       y4       y5      y6      y7  \
-    595  2025-04-26 236.2500 157.4300  98.5300 187.4200 104.9200 70.5900 38.8800   
-    596  2025-04-27 235.2600 159.6600 100.2400 187.0900 104.5100 69.5400 30.5500   
-    597  2025-04-28 235.0700 162.0400 102.2700 187.4000 104.0300 68.7200 38.7200   
-    598  2025-04-29 234.9900 164.3900 103.1700 186.8800 103.3400 67.4100 44.0100   
-    599  2025-04-30 234.7000 167.0500 105.4500 186.7600 102.9000 66.3600 53.7500   
-    
-             y8       y9      y10  
-    595 86.8000 136.4900 215.3200  
-    596 89.8800 131.3800 220.0300  
-    597 93.0900 129.8600 224.6000  
-    598 94.2400 128.1600 229.3100  
-    599 98.2600 132.4900 234.8700  
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
 
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
 
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
 
+body.showEditorSelection .code-line {
+	position: relative;
+}
 
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
 
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<p><em><strong>Anindita Basu</strong></em>
+<strong>TSA Project</strong></p>
+<h1 id="import-required-libraries-and-functions">Import Required Libraries and functions</h1>
+<h1 id="data-loading">data loading</h1>
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 600 entries, 0 to 599
+Data columns (total 11 columns):
+ #   Column  Non-Null Count  Dtype  
+---  ------  --------------  -----  
+ 0   date    600 non-null    object 
+ 1   y1      600 non-null    float64
+ 2   y2      600 non-null    float64
+ 3   y3      600 non-null    float64
+ 4   y4      600 non-null    float64
+ 5   y5      600 non-null    float64
+ 6   y6      600 non-null    float64
+ 7   y7      600 non-null    float64
+ 8   y8      600 non-null    float64
+ 9   y9      600 non-null    float64
+ 10  y10     600 non-null    float64
+dtypes: float64(10), object(1)
+memory usage: 51.7+ KB
+None
+         date       y1       y2       y3       y4       y5       y6       y7  \
+0  2023-09-09 109.4100 109.4100 109.4100 124.2400 124.4700 109.4100 119.9400   
+1  2023-09-10 109.4100 109.4100 109.4100 124.2100 124.3200 109.4100 101.3900   
+2  2023-09-11 109.4200 109.4100 109.4100 124.4100 124.3700 109.4100  97.6400   
+3  2023-09-12 108.6800 110.1900 111.1200 123.9300 124.8200 109.4100  94.3500   
+4  2023-09-13 106.2100 110.8800 112.9200 122.6800 123.9100 107.8400  96.2200   
+
+        y8       y9      y10  
+0 104.6600 107.6200 119.3200  
+1 104.3400 102.6100 119.3600  
+2 104.2300  99.1600 119.3800  
+3 107.2300 103.3900 121.0600  
+4 109.7100 102.4300 122.1700  
+           date       y1       y2       y3       y4       y5      y6      y7  \
+595  2025-04-26 236.2500 157.4300  98.5300 187.4200 104.9200 70.5900 38.8800   
+596  2025-04-27 235.2600 159.6600 100.2400 187.0900 104.5100 69.5400 30.5500   
+597  2025-04-28 235.0700 162.0400 102.2700 187.4000 104.0300 68.7200 38.7200   
+598  2025-04-29 234.9900 164.3900 103.1700 186.8800 103.3400 67.4100 44.0100   
+599  2025-04-30 234.7000 167.0500 105.4500 186.7600 102.9000 66.3600 53.7500   
+
+         y8       y9      y10  
+595 86.8000 136.4900 215.3200  
+596 89.8800 131.3800 220.0300  
+597 93.0900 129.8600 224.6000  
+598 94.2400 128.1600 229.3100  
+599 98.2600 132.4900 234.8700  
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -236,40 +596,27 @@
     </tr>
   </tbody>
 </table>
-</div>
 
-
-
-# Initial Visualization
-
-
-![png](VECM_model_files/VECM_model_8_0.png)
-
-
-
-![png](VECM_model_files/VECM_model_8_1.png)
-
-
-# ADF Test for Each Series and their first diff
-
-    y1
-
-
-
+<h1 id="initial-visualization">Initial Visualization</h1>
+<p><img src="file:///Users/mimuw2022/Documents/GitHub/TIME_SERIES_project/VECM_model_files/VECM_model_8_0.png" alt="png"></p>
+<p><img src="file:///Users/mimuw2022/Documents/GitHub/TIME_SERIES_project/VECM_model_files/VECM_model_8_1.png" alt="png"></p>
+<h1 id="adf-test-for-each-series-and-their-first-diff">ADF Test for Each Series and their first diff</h1>
+<pre><code>y1
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -397,27 +744,23 @@
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    y2
-
-
-
+<pre><code>y2
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -545,27 +888,23 @@
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    y4
-
-
-
+<pre><code>y4
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -693,27 +1032,23 @@
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    y5
-
-
-
+<pre><code>y5
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -841,27 +1176,23 @@
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    y7
-
-
-
+<pre><code>y7
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -989,27 +1320,23 @@
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    y8
-
-
-
+<pre><code>y8
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1137,27 +1464,23 @@
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    y9
-
-
-
+<pre><code>y9
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1285,27 +1608,23 @@
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    y10
-
-
-
+<pre><code>y10
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1433,29 +1752,24 @@
     </tr>
   </tbody>
 </table>
-</div>
 
-
-None of the series above is stationary
-
-    dy1
-
-
-
+<p>None of the series above is stationary</p>
+<pre><code>dy1
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1583,27 +1897,23 @@ None of the series above is stationary
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    dy2
-
-
-
+<pre><code>dy2
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1731,27 +2041,23 @@ None of the series above is stationary
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    dy4
-
-
-
+<pre><code>dy4
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -1879,27 +2185,23 @@ None of the series above is stationary
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    dy5
-
-
-
+<pre><code>dy5
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -2027,27 +2329,23 @@ None of the series above is stationary
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    dy7
-
-
-
+<pre><code>dy7
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -2175,27 +2473,23 @@ None of the series above is stationary
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    dy8
-
-
-
+<pre><code>dy8
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -2323,27 +2617,23 @@ None of the series above is stationary
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    dy9
-
-
-
+<pre><code>dy9
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -2471,27 +2761,23 @@ None of the series above is stationary
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    dy10
-
-
-
+<pre><code>dy10
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -2619,79 +2905,64 @@ None of the series above is stationary
     </tr>
   </tbody>
 </table>
-</div>
 
+<p>the first differences are stationary</p>
+<h1 id="selecting-candidate-pairs">Selecting Candidate Pairs</h1>
+<p><img src="file:///Users/mimuw2022/Documents/GitHub/TIME_SERIES_project/VECM_model_files/VECM_model_15_0.png" alt="png"></p>
+<p>A quick eyeballing may give potential pairs.</p>
+<p><img src="file:///Users/mimuw2022/Documents/GitHub/TIME_SERIES_project/VECM_model_files/VECM_model_17_0.png" alt="png"></p>
+<h1 id="johansen-cointegration-test">Johansen Cointegration Test</h1>
+<pre><code>--- Interpretation (Trace Test) ---
+H0: r &lt;= 0
+  Trace Statistic: 90.683
+  Critical Value (95%): 15.494
+  Result: Reject H0 at 5% significance level.
+H0: r &lt;= 1
+  Trace Statistic: 1.641
+  Critical Value (95%): 3.841
+  Result: Cannot reject H0 at 5% significance level.
 
-the first differences are stationary
-
-# Selecting Candidate Pairs
-
-
-![png](VECM_model_files/VECM_model_15_0.png)
-
-
-A quick eyeballing may give potential pairs.
-
-
-![png](VECM_model_files/VECM_model_17_0.png)
-
-
-# Johansen Cointegration Test
-
-    --- Interpretation (Trace Test) ---
-    H0: r <= 0
-      Trace Statistic: 90.683
-      Critical Value (95%): 15.494
-      Result: Reject H0 at 5% significance level.
-    H0: r <= 1
-      Trace Statistic: 1.641
-      Critical Value (95%): 3.841
-      Result: Cannot reject H0 at 5% significance level.
-    
-    --- Interpretation (Max Eigenvalue Test) ---
-    H0: r = 0
-      Max Eigenvalue Statistic: 89.042
-      Critical Value (95%): 14.264
-      Result: Reject H0 at 5% significance level.
-    H0: r = 1
-      Max Eigenvalue Statistic: 1.641
-      Critical Value (95%): 3.841
-      Result: Cannot reject H0 at 5% significance level.
-
-
-### Johansen Test Interpretation 
-
-* Trace test:
-  r ≤ 0 → reject → there is at least 1 cointegrating vector
-  r ≤ 1 → cannot reject → no more than 1 cointegrating vector
-
-* Max eigenvalue test:
-  r = 0 → reject → at least 1 cointegrating vector
-  r = 1 → cannot reject → no second cointegrating vector
-
-**Conclusion:** rank = 1 → exactly one cointegrating relationship.
-
-
-# VECM
-
-    Adjustment coefficients (alpha):
-
-
-
+--- Interpretation (Max Eigenvalue Test) ---
+H0: r = 0
+  Max Eigenvalue Statistic: 89.042
+  Critical Value (95%): 14.264
+  Result: Reject H0 at 5% significance level.
+H0: r = 1
+  Max Eigenvalue Statistic: 1.641
+  Critical Value (95%): 3.841
+  Result: Cannot reject H0 at 5% significance level.
+</code></pre>
+<h3 id="johansen-test-interpretation">Johansen Test Interpretation</h3>
+<ul>
+<li>
+<p>Trace test:
+r ≤ 0 → reject → there is at least 1 cointegrating vector
+r ≤ 1 → cannot reject → no more than 1 cointegrating vector</p>
+</li>
+<li>
+<p>Max eigenvalue test:
+r = 0 → reject → at least 1 cointegrating vector
+r = 1 → cannot reject → no second cointegrating vector</p>
+</li>
+</ul>
+<p><strong>Conclusion:</strong> rank = 1 → exactly one cointegrating relationship.</p>
+<h1 id="vecm">VECM</h1>
+<pre><code>Adjustment coefficients (alpha):
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -2710,28 +2981,23 @@ A quick eyeballing may give potential pairs.
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    
-    Cointegrating vector (beta):
-
-
-
+<pre><code>Cointegrating vector (beta):
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -2750,31 +3016,26 @@ A quick eyeballing may give potential pairs.
     </tr>
   </tbody>
 </table>
-</div>
 
+<pre><code>Constant in cointegration relation:
+[[139.42946334]]
 
-    
-    Constant in cointegration relation:
-    [[139.42946334]]
-    
-    Short-run dynamics coefficients (gamma):
-
-
-
+Short-run dynamics coefficients (gamma):
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -2826,28 +3087,23 @@ A quick eyeballing may give potential pairs.
     </tr>
   </tbody>
 </table>
-</div>
 
-
-    
-    Residual covariance matrix (sigma_u):
-
-
-
+<pre><code>Residual covariance matrix (sigma_u):
+</code></pre>
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
+</style></div><pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -2869,548 +3125,478 @@ A quick eyeballing may give potential pairs.
     </tr>
   </tbody>
 </table>
-</div>
 
+<pre><code>Jarque-Bera Test for Normality:
+X residuals: JB=1.224, p-value=0.5422
+Y residuals: JB=0.777, p-value=0.6782
 
-    Jarque-Bera Test for Normality:
-    X residuals: JB=1.224, p-value=0.5422
-    Y residuals: JB=0.777, p-value=0.6782
-    
-    Ljung-Box Test for Serial Correlation:
-    
-    X residuals:
-        lb_stat  lb_pvalue
-    12  12.9522     0.3725
-    24  23.4916     0.4910
-    36  33.5277     0.5867
-    
-    Y residuals:
-        lb_stat  lb_pvalue
-    12  16.2463     0.1802
-    24  27.1518     0.2974
-    36  35.4439     0.4949
+Ljung-Box Test for Serial Correlation:
 
+X residuals:
+    lb_stat  lb_pvalue
+12  12.9522     0.3725
+24  23.4916     0.4910
+36  33.5277     0.5867
 
-resudiala are normal.
-There is no significant autocorrelation in the residuals.
-
-# VECM Model Summary
-
-## Model form:
-
-$$
+Y residuals:
+    lb_stat  lb_pvalue
+12  16.2463     0.1802
+24  27.1518     0.2974
+36  35.4439     0.4949
+</code></pre>
+<p>resudiala are normal.
+There is no significant autocorrelation in the residuals.</p>
+<h1 id="vecm-model-summary">VECM Model Summary</h1>
+<h2 id="model-form">Model form:</h2>
+<p>$$
 \Delta X_t = \alpha_1 \cdot ECT_{t-1} + \sum \gamma_{1i} \Delta X_{t-i} + \sum \gamma_{1i} \Delta Y_{t-i} + \varepsilon_{1t}
 $$
 $$
 \Delta Y_t = \alpha_2 \cdot ECT_{t-1} + \sum \gamma_{2i} \Delta X_{t-i} + \sum \gamma_{2i} \Delta Y_{t-i} + \varepsilon_{2t}
-$$
-
-with:
-
-$$
+$$</p>
+<p>with:</p>
+<p>$$
 ECT_{t-1} = X_{t-1} - 2 \cdot Y_{t-1}
-$$
-
-(cointegration vector β = [1, -2] from the output).
-
----
-
-## Cointegration Relationship:
-
-- $ X_t $ and $ Y_t $ move in a **long-run ratio of ~2:1**.
-- If $ X $ deviates from $ 2 \cdot Y $, the system tends to bring it back toward this equilibrium.
-
----
-
-## Adjustment Coefficients (α):
-
-- **X equation:** α = -0.3616  
-    → X adjusts downward when $ X_{t-1} > 2 \cdot Y_{t-1} $.  
-    → X helps correct disequilibrium.
-
-- **Y equation:** α = +0.3458  
-    → Y adjusts upward when $ X_{t-1} > 2 \cdot Y_{t-1} $.  
-    → Y also contributes to restoring equilibrium.
-
-**Conclusion:** Both series actively participate in error correction → this is a well-behaved system.
-
----
-
-## Short-run Dynamics (Gamma):
-
-- **X equation:**
-    - Large short-run effect from $ \Delta X_{t-1} $: **1.5116**.
-    - Significant short-run feedback from own lags (γ terms up to lag 7).
-    - Some influence from $ \Delta Y $, but smaller.
-
-- **Y equation:**
-    - Short-run responses are smaller overall.
-    - $ \Delta X $ terms (esp. first lag) contribute to Y’s short-run movements.
-    - $ \Delta Y $ terms also contribute but with smaller coefficients.
-
-**Interpretation:** X responds faster and more strongly to recent changes than Y does.
-
----
-
-## Constant in Cointegration:
-
-- Constant = **139.43** → shifts the equilibrium line vertically.
-
----
-
-## Residual Covariance Matrix $ \Sigma_u $:
-
-$$
+$$</p>
+<p>(cointegration vector β = [1, -2] from the output).</p>
+<hr>
+<h2 id="cointegration-relationship">Cointegration Relationship:</h2>
+<ul>
+<li>$ X_t $ and $ Y_t $ move in a <strong>long-run ratio of ~2:1</strong>.</li>
+<li>If $ X $ deviates from $ 2 \cdot Y $, the system tends to bring it back toward this equilibrium.</li>
+</ul>
+<hr>
+<h2 id="adjustment-coefficients-%CE%B1">Adjustment Coefficients (α):</h2>
+<ul>
+<li>
+<p><strong>X equation:</strong> α = -0.3616<br>
+→ X adjusts downward when $ X_{t-1} &gt; 2 \cdot Y_{t-1} $.<br>
+→ X helps correct disequilibrium.</p>
+</li>
+<li>
+<p><strong>Y equation:</strong> α = +0.3458<br>
+→ Y adjusts upward when $ X_{t-1} &gt; 2 \cdot Y_{t-1} $.<br>
+→ Y also contributes to restoring equilibrium.</p>
+</li>
+</ul>
+<p><strong>Conclusion:</strong> Both series actively participate in error correction → this is a well-behaved system.</p>
+<hr>
+<h2 id="short-run-dynamics-gamma">Short-run Dynamics (Gamma):</h2>
+<ul>
+<li>
+<p><strong>X equation:</strong></p>
+<ul>
+<li>Large short-run effect from $ \Delta X_{t-1} $: <strong>1.5116</strong>.</li>
+<li>Significant short-run feedback from own lags (γ terms up to lag 7).</li>
+<li>Some influence from $ \Delta Y $, but smaller.</li>
+</ul>
+</li>
+<li>
+<p><strong>Y equation:</strong></p>
+<ul>
+<li>Short-run responses are smaller overall.</li>
+<li>$ \Delta X $ terms (esp. first lag) contribute to Y’s short-run movements.</li>
+<li>$ \Delta Y $ terms also contribute but with smaller coefficients.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Interpretation:</strong> X responds faster and more strongly to recent changes than Y does.</p>
+<hr>
+<h2 id="constant-in-cointegration">Constant in Cointegration:</h2>
+<ul>
+<li>Constant = <strong>139.43</strong> → shifts the equilibrium line vertically.</li>
+</ul>
+<hr>
+<h2 id="residual-covariance-matrix--sigmau">Residual Covariance Matrix $ \Sigma_u $:</h2>
+<p>$$
 \Sigma_u = \begin{bmatrix}
-0.9643 & 0.4792 \\
-0.4792 & 0.2748 \\
+0.9643 &amp; 0.4792 \
+0.4792 &amp; 0.2748 \
 \end{bmatrix}
-$$
+$$</p>
+<ul>
+<li>There is a moderate positive correlation between the residuals of X and Y → not surprising given the cointegration.</li>
+</ul>
+<hr>
+<h2 id="overall-summary">Overall Summary:</h2>
+<ul>
+<li>One stable cointegrating relationship exists between X and Y → $ X_t \approx 2 \cdot Y_t + C $.</li>
+<li>Both X and Y adjust to disequilibrium — X more aggressively, Y more moderately.</li>
+<li>Short-run dynamics are more pronounced for X → X is more volatile and reacts faster.</li>
+<li>The system is stable and behaves intuitively → the VECM is well specified.</li>
+</ul>
+<h1 id="vecm-to-var">VECM to VAR</h1>
+<pre><code>  Summary of Regression Results   
+==================================
+Model:                         VAR
+Method:                        OLS
+Date:           Tue, 10, Jun, 2025
+Time:                     14:54:13
+--------------------------------------------------------------------
+No. of Equations:         2.00000    BIC:                   -3.02441
+Nobs:                     593.000    HQIC:                  -3.15985
+Log likelihood:          -690.346    FPE:                  0.0389205
+AIC:                     -3.24626    Det(Omega_mle):       0.0370238
+--------------------------------------------------------------------
+Results for equation y1
+========================================================================
+           coefficient       std. error           t-stat            prob
+------------------------------------------------------------------------
+const       -49.896785        39.067387           -1.277           0.202
+L1.y1         2.146917         0.113727           18.878           0.000
+L1.y2        -0.225858         0.213169           -1.060           0.289
+L2.y1        -1.302610         0.144254           -9.030           0.000
+L2.y2         0.409355         0.213242            1.920           0.055
+L3.y1        -0.438452         0.153954           -2.848           0.004
+L3.y2         0.321139         0.214318            1.498           0.134
+L4.y1         0.575040         0.153446            3.748           0.000
+L4.y2        -0.082821         0.215201           -0.385           0.700
+L5.y1        -0.188550         0.155383           -1.213           0.225
+L5.y2         0.091600         0.216007            0.424           0.672
+L6.y1        -0.190906         0.147219           -1.297           0.195
+L6.y2         0.112221         0.215368            0.521           0.602
+L7.y1         0.038671         0.119593            0.323           0.746
+L7.y2         0.092742         0.215758            0.430           0.667
+========================================================================
 
-- There is a moderate positive correlation between the residuals of X and Y → not surprising given the cointegration.
+Results for equation y2
+========================================================================
+           coefficient       std. error           t-stat            prob
+------------------------------------------------------------------------
+const        48.488654        20.856263            2.325           0.020
+L1.y1         1.086261         0.060714           17.892           0.000
+L1.y2        -0.165538         0.113801           -1.455           0.146
+L2.y1        -0.663201         0.077011           -8.612           0.000
+L2.y2         0.270946         0.113840            2.380           0.017
+L3.y1        -0.250843         0.082189           -3.052           0.002
+L3.y2         0.211464         0.114414            1.848           0.065
+L4.y1         0.281437         0.081917            3.436           0.001
+L4.y2        -0.029021         0.114886           -0.253           0.801
+L5.y1        -0.082089         0.082952           -0.990           0.322
+L5.y2         0.012934         0.115316            0.112           0.911
+L6.y1        -0.058243         0.078594           -0.741           0.459
+L6.y2        -0.023370         0.114975           -0.203           0.839
+L7.y1         0.033383         0.063845            0.523           0.601
+L7.y2         0.028440         0.115183            0.247           0.805
+========================================================================
 
----
-
-## Overall Summary:
-
-- One stable cointegrating relationship exists between X and Y → $ X_t \approx 2 \cdot Y_t + C $.
-- Both X and Y adjust to disequilibrium — X more aggressively, Y more moderately.
-- Short-run dynamics are more pronounced for X → X is more volatile and reacts faster.
-- The system is stable and behaves intuitively → the VECM is well specified.
-
-# VECM to VAR
-
-      Summary of Regression Results   
-    ==================================
-    Model:                         VAR
-    Method:                        OLS
-    Date:           Tue, 10, Jun, 2025
-    Time:                     14:54:13
-    --------------------------------------------------------------------
-    No. of Equations:         2.00000    BIC:                   -3.02441
-    Nobs:                     593.000    HQIC:                  -3.15985
-    Log likelihood:          -690.346    FPE:                  0.0389205
-    AIC:                     -3.24626    Det(Omega_mle):       0.0370238
-    --------------------------------------------------------------------
-    Results for equation y1
-    ========================================================================
-               coefficient       std. error           t-stat            prob
-    ------------------------------------------------------------------------
-    const       -49.896785        39.067387           -1.277           0.202
-    L1.y1         2.146917         0.113727           18.878           0.000
-    L1.y2        -0.225858         0.213169           -1.060           0.289
-    L2.y1        -1.302610         0.144254           -9.030           0.000
-    L2.y2         0.409355         0.213242            1.920           0.055
-    L3.y1        -0.438452         0.153954           -2.848           0.004
-    L3.y2         0.321139         0.214318            1.498           0.134
-    L4.y1         0.575040         0.153446            3.748           0.000
-    L4.y2        -0.082821         0.215201           -0.385           0.700
-    L5.y1        -0.188550         0.155383           -1.213           0.225
-    L5.y2         0.091600         0.216007            0.424           0.672
-    L6.y1        -0.190906         0.147219           -1.297           0.195
-    L6.y2         0.112221         0.215368            0.521           0.602
-    L7.y1         0.038671         0.119593            0.323           0.746
-    L7.y2         0.092742         0.215758            0.430           0.667
-    ========================================================================
-    
-    Results for equation y2
-    ========================================================================
-               coefficient       std. error           t-stat            prob
-    ------------------------------------------------------------------------
-    const        48.488654        20.856263            2.325           0.020
-    L1.y1         1.086261         0.060714           17.892           0.000
-    L1.y2        -0.165538         0.113801           -1.455           0.146
-    L2.y1        -0.663201         0.077011           -8.612           0.000
-    L2.y2         0.270946         0.113840            2.380           0.017
-    L3.y1        -0.250843         0.082189           -3.052           0.002
-    L3.y2         0.211464         0.114414            1.848           0.065
-    L4.y1         0.281437         0.081917            3.436           0.001
-    L4.y2        -0.029021         0.114886           -0.253           0.801
-    L5.y1        -0.082089         0.082952           -0.990           0.322
-    L5.y2         0.012934         0.115316            0.112           0.911
-    L6.y1        -0.058243         0.078594           -0.741           0.459
-    L6.y2        -0.023370         0.114975           -0.203           0.839
-    L7.y1         0.033383         0.063845            0.523           0.601
-    L7.y2         0.028440         0.115183            0.247           0.805
-    ========================================================================
-    
-    Correlation matrix of residuals
-                y1        y2
-    y1    1.000000  0.930508
-    y2    0.930508  1.000000
-    
-    
-    
-
-
-    
-    Ljung-Box test for y1 residuals:
-        lb_stat  lb_pvalue
-    12  12.7617     0.3866
-    24  23.3009     0.5021
-    36  33.0546     0.6094
-    
-    Ljung-Box test for y2 residuals:
-        lb_stat  lb_pvalue
-    12  16.0886     0.1872
-    24  26.9724     0.3057
-    36  35.1796     0.5074
-
-
-No significant autocorrelation in the residuals
-
-    
-    Jarque-Bera test for y1 residuals: stat=1.147, p-value=0.564
-    
-    Jarque-Bera test for y2 residuals: stat=0.759, p-value=0.684
-
-
-residuals are normal
-
-
-![png](VECM_model_files/VECM_model_35_0.png)
+Correlation matrix of residuals
+            y1        y2
+y1    1.000000  0.930508
+y2    0.930508  1.000000
 
 
 
-![png](VECM_model_files/VECM_model_35_1.png)
 
 
-# VAR(7) Model Summary
 
----
+Ljung-Box test for y1 residuals:
+    lb_stat  lb_pvalue
+12  12.7617     0.3866
+24  23.3009     0.5021
+36  33.0546     0.6094
 
-## Model Form:
+Ljung-Box test for y2 residuals:
+    lb_stat  lb_pvalue
+12  16.0886     0.1872
+24  26.9724     0.3057
+36  35.1796     0.5074
+</code></pre>
+<p>No significant autocorrelation in the residuals</p>
+<pre><code>Jarque-Bera test for y1 residuals: stat=1.147, p-value=0.564
 
-$$
+Jarque-Bera test for y2 residuals: stat=0.759, p-value=0.684
+</code></pre>
+<p>residuals are normal</p>
+<p><img src="file:///Users/mimuw2022/Documents/GitHub/TIME_SERIES_project/VECM_model_files/VECM_model_35_0.png" alt="png"></p>
+<p><img src="file:///Users/mimuw2022/Documents/GitHub/TIME_SERIES_project/VECM_model_files/VECM_model_35_1.png" alt="png"></p>
+<h1 id="var7-model-summary">VAR(7) Model Summary</h1>
+<hr>
+<h2 id="model-form">Model Form:</h2>
+<p>$$
 Y_t = c + \sum_{i=1}^{7} A_i Y_{t-i} + \varepsilon_t
-$$
-
-where:
-
-$$ Y_t = \begin{bmatrix} y1_t \\ y2_t \end{bmatrix} $$
-
-$$ A_i = \text{coefficient matrix for lag } i $$
-
-$$ c = \text{constant vector} $$
-
-$$ \varepsilon_t = \text{error terms} $$
-
----
-
-## Model Fit:
-
-- AIC = -3.246  
-- BIC = -3.024  
-- Log Likelihood = -690.35  
-- $$ \det(\Sigma_u) = 0.037 $$
-
-**Comment:**  
-Overall fit is acceptable. Low AIC/BIC suggests good balance of model complexity vs data size ($N=593$).
-
----
-
-## Dynamics in Equation for $y1$:
-
-### Significant Lags:
-
-- $L1.y1$, $L2.y1$, $L3.y1$, $L4.y1$ → highly significant.
-- Lags of $y2$ mostly insignificant (highest $p=0.055$ on $L2.y2$).
-
-### Equation:
-
-$$
+$$</p>
+<p>where:</p>
+<p>$$ Y_t = \begin{bmatrix} y1_t \ y2_t \end{bmatrix} $$</p>
+<p>$$ A_i = \text{coefficient matrix for lag } i $$</p>
+<p>$$ c = \text{constant vector} $$</p>
+<p>$$ \varepsilon_t = \text{error terms} $$</p>
+<hr>
+<h2 id="model-fit">Model Fit:</h2>
+<ul>
+<li>AIC = -3.246</li>
+<li>BIC = -3.024</li>
+<li>Log Likelihood = -690.35</li>
+<li>$$ \det(\Sigma_u) = 0.037 $$</li>
+</ul>
+<p><strong>Comment:</strong><br>
+Overall fit is acceptable. Low AIC/BIC suggests good balance of model complexity vs data size ($N=593$).</p>
+<hr>
+<h2 id="dynamics-in-equation-for-y1">Dynamics in Equation for $y1$:</h2>
+<h3 id="significant-lags">Significant Lags:</h3>
+<ul>
+<li>$L1.y1$, $L2.y1$, $L3.y1$, $L4.y1$ → highly significant.</li>
+<li>Lags of $y2$ mostly insignificant (highest $p=0.055$ on $L2.y2$).</li>
+</ul>
+<h3 id="equation">Equation:</h3>
+<p>$$
 y1_t = c_1 + \sum_{i=1}^{7} a_i^{11} y1_{t-i} + \sum_{i=1}^{7} a_i^{12} y2_{t-i} + \varepsilon_{1t}
-$$
-
-### Interpretation:
-
-$y1$ is primarily driven by its own past → **strong autoregressive structure**.  
-Influence from $y2$ is weak.
-
----
-
-## Dynamics in Equation for $y2$:
-
-### Significant Lags:
-
-- $L1.y1$, $L2.y1$, $L3.y1$, $L4.y1$ → highly significant → cross-variable influence.
-- $L2.y2$ also significant.
-
-### Equation:
-
-$$
+$$</p>
+<h3 id="interpretation">Interpretation:</h3>
+<p>$y1$ is primarily driven by its own past → <strong>strong autoregressive structure</strong>.<br>
+Influence from $y2$ is weak.</p>
+<hr>
+<h2 id="dynamics-in-equation-for-y2">Dynamics in Equation for $y2$:</h2>
+<h3 id="significant-lags">Significant Lags:</h3>
+<ul>
+<li>$L1.y1$, $L2.y1$, $L3.y1$, $L4.y1$ → highly significant → cross-variable influence.</li>
+<li>$L2.y2$ also significant.</li>
+</ul>
+<h3 id="equation">Equation:</h3>
+<p>$$
 y2_t = c_2 + \sum_{i=1}^{7} a_i^{21} y1_{t-i} + \sum_{i=1}^{7} a_i^{22} y2_{t-i} + \varepsilon_{2t}
-$$
-
-### Interpretation:
-
-$y2$ is strongly influenced by lagged $y1$.  
-Own dynamics of $y2$ are weaker beyond $L2.y2$.
-
----
-
-## Constant Terms:
-
-- $c_1 = -49.90$, not significant $(p = 0.202)$.
-- $c_2 = +48.49$, significant $(p = 0.020)$.
-
-**Comment:**  
-Constant in $y2$ equation suggests **mean shift or trend** in $y2$.  
-No strong constant needed in $y1$.
-
----
-
-## Residual Covariance Matrix $\Sigma_u$:
-
-$$
+$$</p>
+<h3 id="interpretation">Interpretation:</h3>
+<p>$y2$ is strongly influenced by lagged $y1$.<br>
+Own dynamics of $y2$ are weaker beyond $L2.y2$.</p>
+<hr>
+<h2 id="constant-terms">Constant Terms:</h2>
+<ul>
+<li>$c_1 = -49.90$, not significant $(p = 0.202)$.</li>
+<li>$c_2 = +48.49$, significant $(p = 0.020)$.</li>
+</ul>
+<p><strong>Comment:</strong><br>
+Constant in $y2$ equation suggests <strong>mean shift or trend</strong> in $y2$.<br>
+No strong constant needed in $y1$.</p>
+<hr>
+<h2 id="residual-covariance-matrix-sigmau">Residual Covariance Matrix $\Sigma_u$:</h2>
+<p>$$
 \Sigma_u =
 \begin{bmatrix}
-0.9643 & 0.4792 \\
-0.4792 & 0.2748 \\
+0.9643 &amp; 0.4792 \
+0.4792 &amp; 0.2748 \
 \end{bmatrix}
-$$
-
-- Correlation between residuals: $\rho \approx 0.93$ → **moderately high** → expected due to cointegration / joint dynamics.
-
----
-
-# Overall Interpretation:
-
-- One variable (**$y1$**) is strongly autoregressive.
-- Other variable (**$y2$**) is primarily reacting to lags of $y1$.
-- System is stable, no signs of explosive behavior.
-
----
-
-# Model Improvement Suggestions:
-
-- Many higher-order lags are insignificant → model is **likely overparameterized** but reducing lag introduces autocorrelations in the residual.
-- Try fitting VAR(4) — AIC/BIC may improve.
-- Regularization (Ridge, Lasso) can help shrink irrelevant terms.
-- Consider using VECM form instead — we know there is **cointegration**.
-
----
-
-# Summary:
-
-- VAR(7) works, but can be **simplified**.
-- $y1$ → strong own memory.
-- $y2$ → mostly driven by $y1$.
-- Model is interpretable and fits economic intuition.
-
-# Impulse Response Functions (IRF)
-
-
-![png](VECM_model_files/VECM_model_38_0.png)
-
-
-Impulse Response Function (Orthogonalized - Cholesky) – Interpretation
-
-**Panel y1 → y1:**
-
-- $y_1$ responds strongly to its own orthogonal shock → peak $\sim 4.5$.
-- Response decays very slowly → high persistence.
-- Indicates $y_1$ has a strong internal dynamic component.
-
-**Panel y2 → y1:**
-
-- Orthogonal $y_2$ shock causes only a modest effect on $y_1$ → peak $\sim 0.5$.
-- Effect is short-lived → stabilizes quickly.
-- Suggests limited pure causal influence of $y_2$ on $y_1$.
-
-**Panel y1 → y2:**
-
-- $y_2$ responds significantly to orthogonal $y_1$ shock → peak $\sim 2.5$.
-- Gradual decay to $\sim 2$.
-- Indicates $y_1$ has a strong causal effect on $y_2$.
-
-**Panel y2 → y2:**
-
-- $y_2$ reacts moderately to its own orthogonal shock → peak $\sim 0.8$.
-- Response decays quickly → much lower persistence than $y_1$.
-- $y_2$ has more damped dynamics.
-
----
-
-**Summary:**
-
-- $y_1$ is the **dominant driver** in the system → its own shocks and influence on $y_2$ are large and persistent.
-- $y_2$ has a more limited and short-lived impact, especially on $y_1$.
-- System is **asymmetric** → $y_1$ leads $y_2$.
-- Orthogonalization reveals the true causal structure → **most of the system’s long-term variation is driven by $y_1$**.
-
-# Forecast Error Variance Decomposition (FEVD)
-
-
-![png](VECM_model_files/VECM_model_41_0.png)
-
-
-$ \text{Forecast Error Variance Decomposition (FEVD) – Interpretation} $
-
----
-
-**y1:**
-
-- Forecast error variance of $y_1$ is explained almost entirely (>99%) by its **own innovations** at all horizons.
-- Shocks to $y_2$ contribute **negligibly** to $y_1$ variance.
-- $y_1$ is **highly exogenous** → drives itself.
-
----
-
-**y2:**
-
-- At very short horizons (1-2 steps), $y_2$ variance has a small contribution (~10-15%) from $y_1$ shocks.
-- However, after 3+ steps, $y_2$ variance is dominated (>95%) by **its own innovations**.
-- $y_2$ is mostly driven by itself but shows **short-run sensitivity to $y_1$**.
-
----
-
-**Summary:**
-
-- The system exhibits **high degree of separability**:
-    - $y_1$ is strongly self-driven and largely unaffected by $y_2$.
-    - $y_2$ reacts somewhat to $y_1$ in the short run but becomes self-driven in the long run.
-- Confirms the **asymmetry** seen in IRFs → $y_1$ leads system dynamics.
-
-# Diagnostics
-
-    Residuals (first 5 rows):
-                     x       y
-    date                      
-    2023-09-16  0.0173  0.2391
-    2023-09-17  0.4502  0.2750
-    2023-09-18 -1.6009 -0.7892
-    2023-09-19 -0.1680  0.1008
-    2023-09-20 -0.7131 -0.5213
-    
-    Ljung-Box Test for Serial Correlation in Residuals (lag=10):
-    PPI Residuals:
-         lb_stat  lb_pvalue
-    10   7.9033     0.6383
-    
-    CPI Residuals:
-         lb_stat  lb_pvalue
-    10   6.6602     0.7571
-    
-    Conclusion at alpha=0.05:
-     - Cannot reject H0 (no serial correlation) for x residuals.
-     - Cannot reject H0 (no serial correlation) for y residuals.
-
-
-No serial auto correlation
-
-
-![png](VECM_model_files/VECM_model_46_0.png)
-
-
-
-![png](VECM_model_files/VECM_model_47_0.png)
-
-
-    
-    Jarque-Bera Normality Test for Residuals:
-    X Residuals: Statistic=1.147, p-value=0.564
-    Y Residuals: Statistic=0.759, p-value=0.684
-    
-    Conclusion at alpha=0.05:
-     - Cannot reject normality for X residuals.
-     - Cannot reject normality for Y residuals.
-    
-    Multivariate Normality Test Results (using VECMResults method):
-    <statsmodels.tsa.vector_ar.hypothesis_test_results.NormalityTestResults object. H_0: data generated by normally-distributed process: fail to reject at 5% significance level. Test statistic: 2.916, critical value: 9.488>, p-value: 0.572>
-
-
-Residuals are normal.
-
-# Forecasting
-
-                 x_fore   y_fore
-    date                        
-    2025-04-06 212.6589 176.0558
-    2025-04-07 212.7057 176.0803
-    2025-04-08 213.1790 176.2815
-    2025-04-09 213.7874 176.5718
-    2025-04-10 214.4940 176.9586
-    2025-04-11 215.2287 177.3118
-    2025-04-12 215.9657 177.6990
-    2025-04-13 216.6009 178.0124
-    2025-04-14 217.1025 178.2679
-    2025-04-15 217.4751 178.4550
-    2025-04-16 217.7498 178.5899
-    2025-04-17 217.9618 178.6972
-    2025-04-18 218.1262 178.7777
-    2025-04-19 218.2574 178.8443
-    2025-04-20 218.3645 178.8979
-    2025-04-21 218.4588 178.9456
-    2025-04-22 218.5493 178.9913
-    2025-04-23 218.6409 179.0372
-    2025-04-24 218.7364 179.0853
-    2025-04-25 218.8364 179.1353
-    2025-04-26 218.9413 179.1878
-    2025-04-27 219.0509 179.2426
-    2025-04-28 219.1650 179.2996
-    2025-04-29 219.2825 179.3583
-    2025-04-30 219.4026 179.4183
-
-
-    
-    Forecasts and Confidence Intervals:
-                 x_fore   y_fore  x_lower  y_lower  x_upper  y_upper
-    date                                                            
-    2025-04-06 212.6589 176.0558 210.7048 175.0139 214.6129 177.0978
-    2025-04-07 212.7057 176.0803 208.2721 173.8571 217.1393 178.3035
-    2025-04-08 213.1790 176.2815 205.7644 172.5825 220.5937 179.9806
-    2025-04-09 213.7874 176.5718 203.4747 171.4234 224.1002 181.7202
-    2025-04-10 214.4940 176.9586 201.4488 170.4431 227.5393 183.4740
-    2025-04-11 215.2287 177.3118 199.6131 169.5115 230.8443 185.1121
-    2025-04-12 215.9657 177.6990 197.9226 168.6902 234.0088 186.7078
-    2025-04-13 216.6009 178.0124 196.2779 167.8650 236.9240 188.1598
-    2025-04-14 217.1025 178.2679 194.6758 167.0703 239.5291 189.4654
-    2025-04-15 217.4751 178.4550 193.1273 166.2971 241.8230 190.6130
-    2025-04-16 217.7498 178.5899 191.6512 165.5563 243.8484 191.6235
-    2025-04-17 217.9618 178.6972 190.2594 164.8611 245.6642 192.5333
-    2025-04-18 218.1262 178.7777 188.9445 164.2011 247.3080 193.3543
-    2025-04-19 218.2574 178.8443 187.7030 163.5808 248.8119 194.1079
-    2025-04-20 218.3645 178.8979 186.5287 162.9928 250.2003 194.8029
-    2025-04-21 218.4588 178.9456 185.4193 162.4380 251.4983 195.4532
-    2025-04-22 218.5493 178.9913 184.3714 161.9139 252.7272 196.0688
-    2025-04-23 218.6409 179.0372 183.3791 161.4173 253.9027 196.6572
-    2025-04-24 218.7364 179.0853 182.4368 160.9459 255.0360 197.2247
-    2025-04-25 218.8364 179.1353 181.5384 160.4963 256.1343 197.7742
-    2025-04-26 218.9413 179.1878 180.6796 160.0666 257.2029 198.3090
-    2025-04-27 219.0509 179.2426 179.8561 159.6545 258.2458 198.8307
-    2025-04-28 219.1650 179.2996 179.0645 159.2584 259.2654 199.3408
-    2025-04-29 219.2825 179.3583 178.3015 158.8766 260.2635 199.8400
-    2025-04-30 219.4026 179.4183 177.5644 158.5077 261.2408 200.3289
-
-
-
-![png](VECM_model_files/VECM_model_55_0.png)
-
-
-#  Forecast Evaluation
-
-    
-    Forecast Accuracy:
-    X: MAE=9.1487, MSE=137.0317, MAPE=3.92%, AMAPE=4.05%
-    Y: MAE=4.5264, MSE=33.5130, MAPE=2.43%, AMAPE=2.48%
-
-
-**Forecast Accuracy Summary**
-
-- **X:**
-  - Mean Absolute Error (MAE): 9.15
-  - Mean Squared Error (MSE): 137.03
-  - Mean Absolute Percentage Error (MAPE): 3.92%
-  - Adjusted MAPE (AMAPE): 4.05%
-
-- **Y:**
-  - Mean Absolute Error (MAE): 4.53
-  - Mean Squared Error (MSE): 33.51
-  - Mean Absolute Percentage Error (MAPE): 2.43%
-  - Adjusted MAPE (AMAPE): 2.48%
-
-**Interpretation:**
-- Forecast errors are relatively low for both X and Y.
-- Y shows slightly better forecast accuracy than X across all metrics (lower MAE, MSE, and MAPE).
-- MAPE values under 5% suggest **good predictive performance** for both series.
+$$</p>
+<ul>
+<li>Correlation between residuals: $\rho \approx 0.93$ → <strong>moderately high</strong> → expected due to cointegration / joint dynamics.</li>
+</ul>
+<hr>
+<h1 id="overall-interpretation">Overall Interpretation:</h1>
+<ul>
+<li>One variable (<strong>$y1$</strong>) is strongly autoregressive.</li>
+<li>Other variable (<strong>$y2$</strong>) is primarily reacting to lags of $y1$.</li>
+<li>System is stable, no signs of explosive behavior.</li>
+</ul>
+<hr>
+<h1 id="model-improvement-suggestions">Model Improvement Suggestions:</h1>
+<ul>
+<li>Many higher-order lags are insignificant → model is <strong>likely overparameterized</strong> but reducing lag introduces autocorrelations in the residual.</li>
+<li>Try fitting VAR(4) — AIC/BIC may improve.</li>
+<li>Regularization (Ridge, Lasso) can help shrink irrelevant terms.</li>
+<li>Consider using VECM form instead — we know there is <strong>cointegration</strong>.</li>
+</ul>
+<hr>
+<h1 id="summary">Summary:</h1>
+<ul>
+<li>VAR(7) works, but can be <strong>simplified</strong>.</li>
+<li>$y1$ → strong own memory.</li>
+<li>$y2$ → mostly driven by $y1$.</li>
+<li>Model is interpretable and fits economic intuition.</li>
+</ul>
+<h1 id="impulse-response-functions-irf">Impulse Response Functions (IRF)</h1>
+<p><img src="file:///Users/mimuw2022/Documents/GitHub/TIME_SERIES_project/VECM_model_files/VECM_model_38_0.png" alt="png"></p>
+<p>Impulse Response Function (Orthogonalized - Cholesky) – Interpretation</p>
+<p><strong>Panel y1 → y1:</strong></p>
+<ul>
+<li>$y_1$ responds strongly to its own orthogonal shock → peak $\sim 4.5$.</li>
+<li>Response decays very slowly → high persistence.</li>
+<li>Indicates $y_1$ has a strong internal dynamic component.</li>
+</ul>
+<p><strong>Panel y2 → y1:</strong></p>
+<ul>
+<li>Orthogonal $y_2$ shock causes only a modest effect on $y_1$ → peak $\sim 0.5$.</li>
+<li>Effect is short-lived → stabilizes quickly.</li>
+<li>Suggests limited pure causal influence of $y_2$ on $y_1$.</li>
+</ul>
+<p><strong>Panel y1 → y2:</strong></p>
+<ul>
+<li>$y_2$ responds significantly to orthogonal $y_1$ shock → peak $\sim 2.5$.</li>
+<li>Gradual decay to $\sim 2$.</li>
+<li>Indicates $y_1$ has a strong causal effect on $y_2$.</li>
+</ul>
+<p><strong>Panel y2 → y2:</strong></p>
+<ul>
+<li>$y_2$ reacts moderately to its own orthogonal shock → peak $\sim 0.8$.</li>
+<li>Response decays quickly → much lower persistence than $y_1$.</li>
+<li>$y_2$ has more damped dynamics.</li>
+</ul>
+<hr>
+<p><strong>Summary:</strong></p>
+<ul>
+<li>$y_1$ is the <strong>dominant driver</strong> in the system → its own shocks and influence on $y_2$ are large and persistent.</li>
+<li>$y_2$ has a more limited and short-lived impact, especially on $y_1$.</li>
+<li>System is <strong>asymmetric</strong> → $y_1$ leads $y_2$.</li>
+<li>Orthogonalization reveals the true causal structure → <strong>most of the system’s long-term variation is driven by $y_1$</strong>.</li>
+</ul>
+<h1 id="forecast-error-variance-decomposition-fevd">Forecast Error Variance Decomposition (FEVD)</h1>
+<p><img src="file:///Users/mimuw2022/Documents/GitHub/TIME_SERIES_project/VECM_model_files/VECM_model_41_0.png" alt="png"></p>
+<p>$ \text{Forecast Error Variance Decomposition (FEVD) – Interpretation} $</p>
+<hr>
+<p><strong>y1:</strong></p>
+<ul>
+<li>Forecast error variance of $y_1$ is explained almost entirely (&gt;99%) by its <strong>own innovations</strong> at all horizons.</li>
+<li>Shocks to $y_2$ contribute <strong>negligibly</strong> to $y_1$ variance.</li>
+<li>$y_1$ is <strong>highly exogenous</strong> → drives itself.</li>
+</ul>
+<hr>
+<p><strong>y2:</strong></p>
+<ul>
+<li>At very short horizons (1-2 steps), $y_2$ variance has a small contribution (~10-15%) from $y_1$ shocks.</li>
+<li>However, after 3+ steps, $y_2$ variance is dominated (&gt;95%) by <strong>its own innovations</strong>.</li>
+<li>$y_2$ is mostly driven by itself but shows <strong>short-run sensitivity to $y_1$</strong>.</li>
+</ul>
+<hr>
+<p><strong>Summary:</strong></p>
+<ul>
+<li>The system exhibits <strong>high degree of separability</strong>:
+<ul>
+<li>$y_1$ is strongly self-driven and largely unaffected by $y_2$.</li>
+<li>$y_2$ reacts somewhat to $y_1$ in the short run but becomes self-driven in the long run.</li>
+</ul>
+</li>
+<li>Confirms the <strong>asymmetry</strong> seen in IRFs → $y_1$ leads system dynamics.</li>
+</ul>
+<h1 id="diagnostics">Diagnostics</h1>
+<pre><code>Residuals (first 5 rows):
+                 x       y
+date                      
+2023-09-16  0.0173  0.2391
+2023-09-17  0.4502  0.2750
+2023-09-18 -1.6009 -0.7892
+2023-09-19 -0.1680  0.1008
+2023-09-20 -0.7131 -0.5213
+
+Ljung-Box Test for Serial Correlation in Residuals (lag=10):
+PPI Residuals:
+     lb_stat  lb_pvalue
+10   7.9033     0.6383
+
+CPI Residuals:
+     lb_stat  lb_pvalue
+10   6.6602     0.7571
+
+Conclusion at alpha=0.05:
+ - Cannot reject H0 (no serial correlation) for x residuals.
+ - Cannot reject H0 (no serial correlation) for y residuals.
+</code></pre>
+<p>No serial auto correlation</p>
+<p><img src="file:///Users/mimuw2022/Documents/GitHub/TIME_SERIES_project/VECM_model_files/VECM_model_46_0.png" alt="png"></p>
+<p><img src="file:///Users/mimuw2022/Documents/GitHub/TIME_SERIES_project/VECM_model_files/VECM_model_47_0.png" alt="png"></p>
+<pre><code>Jarque-Bera Normality Test for Residuals:
+X Residuals: Statistic=1.147, p-value=0.564
+Y Residuals: Statistic=0.759, p-value=0.684
+
+Conclusion at alpha=0.05:
+ - Cannot reject normality for X residuals.
+ - Cannot reject normality for Y residuals.
+
+Multivariate Normality Test Results (using VECMResults method):
+&lt;statsmodels.tsa.vector_ar.hypothesis_test_results.NormalityTestResults object. H_0: data generated by normally-distributed process: fail to reject at 5% significance level. Test statistic: 2.916, critical value: 9.488&gt;, p-value: 0.572&gt;
+</code></pre>
+<p>Residuals are normal.</p>
+<h1 id="forecasting">Forecasting</h1>
+<pre><code>             x_fore   y_fore
+date                        
+2025-04-06 212.6589 176.0558
+2025-04-07 212.7057 176.0803
+2025-04-08 213.1790 176.2815
+2025-04-09 213.7874 176.5718
+2025-04-10 214.4940 176.9586
+2025-04-11 215.2287 177.3118
+2025-04-12 215.9657 177.6990
+2025-04-13 216.6009 178.0124
+2025-04-14 217.1025 178.2679
+2025-04-15 217.4751 178.4550
+2025-04-16 217.7498 178.5899
+2025-04-17 217.9618 178.6972
+2025-04-18 218.1262 178.7777
+2025-04-19 218.2574 178.8443
+2025-04-20 218.3645 178.8979
+2025-04-21 218.4588 178.9456
+2025-04-22 218.5493 178.9913
+2025-04-23 218.6409 179.0372
+2025-04-24 218.7364 179.0853
+2025-04-25 218.8364 179.1353
+2025-04-26 218.9413 179.1878
+2025-04-27 219.0509 179.2426
+2025-04-28 219.1650 179.2996
+2025-04-29 219.2825 179.3583
+2025-04-30 219.4026 179.4183
+
+
+
+Forecasts and Confidence Intervals:
+             x_fore   y_fore  x_lower  y_lower  x_upper  y_upper
+date                                                            
+2025-04-06 212.6589 176.0558 210.7048 175.0139 214.6129 177.0978
+2025-04-07 212.7057 176.0803 208.2721 173.8571 217.1393 178.3035
+2025-04-08 213.1790 176.2815 205.7644 172.5825 220.5937 179.9806
+2025-04-09 213.7874 176.5718 203.4747 171.4234 224.1002 181.7202
+2025-04-10 214.4940 176.9586 201.4488 170.4431 227.5393 183.4740
+2025-04-11 215.2287 177.3118 199.6131 169.5115 230.8443 185.1121
+2025-04-12 215.9657 177.6990 197.9226 168.6902 234.0088 186.7078
+2025-04-13 216.6009 178.0124 196.2779 167.8650 236.9240 188.1598
+2025-04-14 217.1025 178.2679 194.6758 167.0703 239.5291 189.4654
+2025-04-15 217.4751 178.4550 193.1273 166.2971 241.8230 190.6130
+2025-04-16 217.7498 178.5899 191.6512 165.5563 243.8484 191.6235
+2025-04-17 217.9618 178.6972 190.2594 164.8611 245.6642 192.5333
+2025-04-18 218.1262 178.7777 188.9445 164.2011 247.3080 193.3543
+2025-04-19 218.2574 178.8443 187.7030 163.5808 248.8119 194.1079
+2025-04-20 218.3645 178.8979 186.5287 162.9928 250.2003 194.8029
+2025-04-21 218.4588 178.9456 185.4193 162.4380 251.4983 195.4532
+2025-04-22 218.5493 178.9913 184.3714 161.9139 252.7272 196.0688
+2025-04-23 218.6409 179.0372 183.3791 161.4173 253.9027 196.6572
+2025-04-24 218.7364 179.0853 182.4368 160.9459 255.0360 197.2247
+2025-04-25 218.8364 179.1353 181.5384 160.4963 256.1343 197.7742
+2025-04-26 218.9413 179.1878 180.6796 160.0666 257.2029 198.3090
+2025-04-27 219.0509 179.2426 179.8561 159.6545 258.2458 198.8307
+2025-04-28 219.1650 179.2996 179.0645 159.2584 259.2654 199.3408
+2025-04-29 219.2825 179.3583 178.3015 158.8766 260.2635 199.8400
+2025-04-30 219.4026 179.4183 177.5644 158.5077 261.2408 200.3289
+</code></pre>
+<p><img src="file:///Users/mimuw2022/Documents/GitHub/TIME_SERIES_project/VECM_model_files/VECM_model_55_0.png" alt="png"></p>
+<h1 id="forecast-evaluation">Forecast Evaluation</h1>
+<pre><code>Forecast Accuracy:
+X: MAE=9.1487, MSE=137.0317, MAPE=3.92%, AMAPE=4.05%
+Y: MAE=4.5264, MSE=33.5130, MAPE=2.43%, AMAPE=2.48%
+</code></pre>
+<p><strong>Forecast Accuracy Summary</strong></p>
+<ul>
+<li>
+<p><strong>X:</strong></p>
+<ul>
+<li>Mean Absolute Error (MAE): 9.15</li>
+<li>Mean Squared Error (MSE): 137.03</li>
+<li>Mean Absolute Percentage Error (MAPE): 3.92%</li>
+<li>Adjusted MAPE (AMAPE): 4.05%</li>
+</ul>
+</li>
+<li>
+<p><strong>Y:</strong></p>
+<ul>
+<li>Mean Absolute Error (MAE): 4.53</li>
+<li>Mean Squared Error (MSE): 33.51</li>
+<li>Mean Absolute Percentage Error (MAPE): 2.43%</li>
+<li>Adjusted MAPE (AMAPE): 2.48%</li>
+</ul>
+</li>
+</ul>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li>Forecast errors are relatively low for both X and Y.</li>
+<li>Y shows slightly better forecast accuracy than X across all metrics (lower MAE, MSE, and MAPE).</li>
+<li>MAPE values under 5% suggest <strong>good predictive performance</strong> for both series.</li>
+</ul>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Ignore everything by default
+*
+
+# But not this file
+!VECM_model.ipynb
+
+!.gitignore
+
+!README.md
